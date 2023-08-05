@@ -67,7 +67,7 @@ func StartApp(port int) {
 }
 
 func CreateFile(content string, filename string) {
-	fileLocation := ConcatStrings("/Users/raimialiu/Desktop/projects/pihem/devopsjourney/projects/shorturl/", filename)
+	fileLocation := ConcatStrings("", filename)
 	fmt.Println("file location is ", fileLocation)
 	fileHandler, err := os.OpenFile(fileLocation, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
@@ -96,7 +96,7 @@ func LoadConfig() (err error) {
 	fmt.Println(dir)
 	fmt.Println(dirError)
 
-	data, err := os.ReadFile("/Users/raimialiu/Desktop/projects/pihem/devopsjourney/projects/shorturl/config.json")
+	data, err := os.ReadFile("config.json")
 	if err == nil {
 		fmt.Println("data read is ")
 		fmt.Println(string(data))
