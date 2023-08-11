@@ -1,11 +1,12 @@
-package packages
+package GoDapper
 
 import (
 	sql "database/sql"
 	"fmt"
 	"github.com/go-sql-driver/mysql"
-	"shorturl/packages/constants"
-	"shorturl/packages/utilities"
+	constants2 "shorturl/packages/GoDapper/constants"
+	GoMapper "shorturl/packages/GoDapper/lib/interface"
+	"shorturl/packages/GoDapper/utilities"
 )
 
 type GoDapper struct {
@@ -13,11 +14,11 @@ type GoDapper struct {
 	AutoCloseDB     bool
 	Config          *GoDapperConfig
 	object          *sql.DB
-	ConnectionState constants.SqlState
+	ConnectionState constants2.SqlState
 }
 
 type GoDapperConfig struct {
-	Dialect     constants.Dialect
+	Dialect     constants2.Dialect
 	User        string
 	Password    string
 	DbName      string
@@ -35,12 +36,12 @@ func NewGoDapper(config *GoDapperConfig) GoDapper {
 	}
 }
 
-func (g *GoDapper) GetSqlDialect() constants.Dialect {
+func (g *GoDapper) GetSqlDialect() constants2.Dialect {
 	return g.Config.Dialect
 }
 
 func (g *GoDapper) FormatSqlConnectionString() string {
-	if g.Config.Dialect == constants.MYSQL {
+	if g.Config.Dialect == constants2.MYSQL {
 		cfg := mysql.Config{
 			User:   g.Config.User,
 			Passwd: g.Config.Password,
@@ -55,8 +56,8 @@ func (g *GoDapper) FormatSqlConnectionString() string {
 	panic("string")
 }
 
-func _connectToDb(dialect string, connectionString string) (db *sql.DB) {
-	db, err := sql.Open(dialect, connectionString)
+func _connectToDb(connectionString string) (db *sql.DB) {
+	db, err := sql.Open(constants2.MYSQL, connectionString)
 	if err != nil {
 		fmt.Println(db)
 		return db
@@ -69,20 +70,20 @@ func (g GoDapper) Close() {
 		panic("db not in opened state, error.... ")
 	}
 
-	if g.ConnectionState != constants.OPEN {
+	if g.ConnectionState != constants2.OPEN {
 		panic("!oops, it seems the db connection is not opened...., ")
 	}
 
 	g.object.Close()
 }
 
-func (g *GoDapper) Open() (db *sql.DB) {
+func (g *GoDapper) Open() (dbProvider GoMapper.DbProvider) {
 	var connectionString string = g.FormatSqlConnectionString()
-	db = _connectToDb(g.GetSqlDialect().String(), connectionString)
+	db := _connectToDb(g.GetSqlDialect().String(), connectionString)
 	canCloseDb := g.AutoCloseDB == true
 
 	if canCloseDb {
-		g.ConnectionState = constants.OPEN
+		g.ConnectionState = constants2.OPEN
 		g.object = db
 		defer g.Close()
 	}
